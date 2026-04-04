@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管事 - KNOWYER 管理后台</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --admin-bg: #0D0D14;
+            --admin-sidebar: #1A1A2E;
+            --admin-accent: #C41E3A;
+            --admin-accent2: #D4AF37;
+            --admin-text: #E8E4DC;
+            --admin-muted: #8B8B8B;
+            --admin-border: rgba(212, 175, 55, 0.3);
+        }
+
+        body {
+            background: var(--admin-bg);
+            font-family: 'Noto Serif SC', serif;
+            color: var(--admin-text);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 260px;
+            background: var(--admin-sidebar);
+            border-right: 1px solid var(--admin-border);
+            padding: var(--space-lg);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-logo {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 1.5rem;
+            color: var(--admin-accent2);
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            letter-spacing: 0.1em;
+        }
+
+        .admin-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .admin-nav-item {
+            padding: var(--space-md);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .admin-nav-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .admin-nav-item.active {
+            background: rgba(196, 30, 58, 0.2);
+            border-color: var(--admin-accent);
+            color: var(--admin-accent);
+        }
+
+        .admin-nav-item::before {
+            content: '›';
+            margin-right: var(--space-sm);
+            opacity: 0.5;
+        }
+
+        .admin-main {
+            flex: 1;
+            margin-left: 260px;
+            padding: var(--space-xl);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+            padding-bottom: var(--space-lg);
+            border-bottom: 1px solid var(--admin-border);
+        }
+
+        .admin-title {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 1.8rem;
+            color: var(--admin-accent2);
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .admin-btn {
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--admin-border);
+            background: transparent;
+            color: var(--admin-text);
+        }
+
+        .admin-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--admin-accent2);
+        }
+
+        .admin-btn.primary {
+            background: var(--admin-accent);
+            border-color: var(--admin-accent);
+            color: white;
+        }
+
+        .admin-btn.primary:hover {
+            background: #a01830;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-size: 0.9rem;
+            color: var(--admin-muted);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--admin-border);
+            border-radius: 4px;
+            color: var(--admin-text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--admin-accent);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .item-list {
+            margin-top: var(--space-lg);
+        }
+
+        .item-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--admin-border);
+            border-radius: 4px;
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        .item-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-sm);
+        }
+
+        .item-card-title {
+            font-size: 1rem;
+            color: var(--admin-text);
+        }
+
+        .item-card-actions button {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--admin-border);
+            background: transparent;
+            color: var(--admin-muted);
+            transition: all 0.2s ease;
+        }
+
+        .item-card-actions button:hover {
+            border-color: var(--admin-accent);
+            color: var(--admin-accent);
+        }
+
+        .item-card-actions button.delete:hover {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .item-card-body {
+            font-size: 0.85rem;
+            color: var(--admin-muted);
+            line-height: 1.6;
+        }
+
+        .item-card-meta {
+            margin-top: var(--space-sm);
+            font-size: 0.75rem;
+            color: var(--admin-accent2);
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            background: rgba(196, 30, 58, 0.2);
+            border: 1px solid var(--admin-accent);
+            border-radius: 16px;
+            font-size: 0.9rem;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+        }
+
+        .empty-list {
+            text-align: center;
+            padding: var(--space-xxl);
+            color: var(--admin-muted);
+            font-style: italic;
+        }
+
+        .message {
+            padding: var(--space-md);
+            border-radius: 4px;
+            margin-bottom: var(--space-lg);
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(46, 125, 50, 0.2);
+            border: 1px solid #2E7D32;
+            color: #4CAF50;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #f44336;
+            display: block;
+        }
+
+        .skill-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+
+        .skill-row .form-input {
+            width: 120px;
+        }
+
+        .skill-row input[type="range"] {
+            flex: 1;
+        }
+
+        .skill-value {
+            width: 50px;
+            text-align: center;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .preview-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--admin-accent2);
+            font-size: 0.9rem;
+        }
+
+        .preview-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-card {
+            background: rgba(255,255,255,0.03);
+            padding: var(--space-xl);
+            border-radius: 4px;
+            border: 1px solid var(--admin-border);
+        }
+
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .admin-main {
+                margin-left: 0;
+            }
+            .admin-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">管事</div>
+            <nav class="admin-nav">
+                <div class="admin-nav-item active" data-section="profile">个人信息</div>
+                <div class="admin-nav-item" data-section="maxims">格言集</div>
+                <div class="admin-nav-item" data-section="skills">技能</div>
+                <div class="admin-nav-item" data-section="works">工作经历</div>
+                <div class="admin-nav-item" data-section="books">书架</div>
+                <div class="admin-nav-item" data-section="notes">学习笔记</div>
+                <div class="admin-nav-item" data-section="photos">照片</div>
+                <div class="admin-nav-item" data-section="interests">兴趣爱好</div>
+                <div class="admin-nav-item" data-section="life">生活点滴</div>
+                <div class="admin-nav-item" data-section="posts">动态</div>
+                <div class="admin-nav-item" data-section="contacts">联系方式</div>
+                <div class="admin-nav-item" data-section="data">数据管理</div>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1 class="admin-title" id="section-title">个人信息</h1>
+                <div class="admin-actions">
+                    <a href="index.html" target="_blank" class="preview-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                        </svg>
+                        预览网站
+                    </a>
+                </div>
+            </header>
+
+            <div id="message" class="message"></div>
+
+            <!-- Profile -->
+            <section id="section-profile" class="admin-section active">
+                <form id="form-profile" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-input" name="name" placeholder="KNOWYER">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">头像 URL</label>
+                        <input type="text" class="form-input" name="avatar" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">简介</label>
+                        <input type="text" class="form-input" name="tagline" placeholder="数字孪生，虚拟映照真实">
+                    </div>
+                    <button type="submit" class="admin-btn primary">保存</button>
+                </form>
+            </section>
+
+            <!-- Maxim -->
+            <section id="section-maxims" class="admin-section">
+                <form id="form-maxim" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">格言</label>
+                        <input type="text" class="form-input" name="text" placeholder="人生如逆旅，我亦是行人">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">作者</label>
+                        <input type="text" class="form-input" name="author" placeholder="苏轼">
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加格言</button>
+                </form>
+                <div id="list-maxims" class="item-list"></div>
+            </section>
+
+            <!-- Skills -->
+            <section id="section-skills" class="admin-section">
+                <form id="form-skill" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">技能名称</label>
+                        <input type="text" class="form-input" name="name" placeholder="JavaScript">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">熟练度 (<span id="skill-preview">70</span>%)</label>
+                        <input type="range" name="level" min="0" max="100" value="70" oninput="document.getElementById('skill-preview').textContent = this.value">
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加技能</button>
+                </form>
+                <div id="list-skills" class="item-list"></div>
+            </section>
+
+            <!-- Works -->
+            <section id="section-works" class="admin-section">
+                <form id="form-work" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">职位</label>
+                        <input type="text" class="form-input" name="title" placeholder="高级软件工程师">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">公司</label>
+                        <input type="text" class="form-input" name="company" placeholder="某科技公司">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">时间段</label>
+                        <input type="text" class="form-input" name="period" placeholder="2022 - 至今">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <textarea class="form-textarea" name="description" placeholder="工作描述..."></textarea>
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加</button>
+                </form>
+                <div id="list-works" class="item-list"></div>
+            </section>
+
+            <!-- Books -->
+            <section id="section-books" class="admin-section">
+                <form id="form-book" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">书名</label>
+                        <input type="text" class="form-input" name="title" placeholder="百年孤独">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">作者</label>
+                        <input type="text" class="form-input" name="author" placeholder="加西亚·马尔克斯">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" name="status">
+                            <option value="reading">在读</option>
+                            <option value="finished">已读</option>
+                            <option value="want">想读</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加</button>
+                </form>
+                <div id="list-books" class="item-list"></div>
+            </section>
+
+            <!-- Notes -->
+            <section id="section-notes" class="admin-section">
+                <form id="form-note" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">标题</label>
+                        <input type="text" class="form-input" name="title" placeholder="学习方法论">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">摘要</label>
+                        <textarea class="form-textarea" name="excerpt" placeholder="笔记摘要..."></textarea>
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加</button>
+                </form>
+                <div id="list-notes" class="item-list"></div>
+            </section>
+
+            <!-- Photos -->
+            <section id="section-photos" class="admin-section">
+                <form id="form-photo" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">图片 URL</label>
+                        <input type="text" class="form-input" name="url" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <input type="text" class="form-input" name="caption" placeholder="山间云雾">
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加</button>
+                </form>
+                <div id="list-photos" class="item-list"></div>
+            </section>
+
+            <!-- Interests -->
+            <section id="section-interests" class="admin-section">
+                <form id="form-interest" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">兴趣爱好</label>
+                        <input type="text" class="form-input" name="interest" placeholder="摄影">
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加</button>
+                </form>
+                <div id="list-interests" class="item-list tags-container"></div>
+            </section>
+
+            <!-- Life -->
+            <section id="section-life" class="admin-section">
+                <form id="form-life" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">标题</label>
+                        <input type="text" class="form-input" name="title" placeholder="清晨的咖啡时光">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">日期</label>
+                        <input type="date" class="form-input" name="date">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">图片 URL</label>
+                        <input type="text" class="form-input" name="image" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">内容</label>
+                        <textarea class="form-textarea" name="excerpt" placeholder="描述..."></textarea>
+                    </div>
+                    <button type="submit" class="admin-btn primary">添加</button>
+                </form>
+                <div id="list-life" class="item-list"></div>
+            </section>
+
+            <!-- Posts -->
+            <section id="section-posts" class="admin-section">
+                <form id="form-post" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">标题</label>
+                        <input type="text" class="form-input" name="title" placeholder="文章标题">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">日期</label>
+                        <input type="date" class="form-input" name="date">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">内容</label>
+                        <textarea class="form-textarea" name="content" placeholder="文章内容..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">标签（用逗号分隔）</label>
+                        <input type="text" class="form-input" name="tags" placeholder="网站, 开发">
+                    </div>
+                    <button type="submit" class="admin-btn primary">发布</button>
+                </form>
+                <div id="list-posts" class="item-list"></div>
+            </section>
+
+            <!-- Contacts -->
+            <section id="section-contacts" class="admin-section">
+                <form id="form-contacts" class="form-card">
+                    <div class="form-group">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-input" name="email" placeholder="know@knowyer.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GitHub</label>
+                        <input type="text" class="form-input" name="github" placeholder="github.com/username">
+                    </div>
+                    <button type="submit" class="admin-btn primary">保存</button>
+                </form>
+            </section>
+
+            <!-- Data -->
+            <section id="section-data" class="admin-section">
+                <div style="display: flex; gap: var(--space-lg); flex-wrap: wrap;">
+                    <button class="admin-btn" onclick="exportData()">导出数据 (JSON)</button>
+                    <label class="admin-btn" style="cursor: pointer;">
+                        导入数据 (JSON)
+                        <input type="file" accept=".json" style="display: none;" onchange="importData(this)">
+                    </label>
+                    <button class="admin-btn" onclick="resetData()" style="border-color: #dc3545; color: #dc3545;">重置为默认</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        const Admin = {
+            init() {
+                this.setupNavigation();
+                this.loadAllData();
+                this.setupForms();
+            },
+
+            setupNavigation() {
+                const navItems = document.querySelectorAll('.admin-nav-item');
+                const sections = document.querySelectorAll('.admin-section');
+                const titleEl = document.getElementById('section-title');
+                const titles = {
+                    profile: '个人信息', maxims: '格言集', skills: '技能', works: '工作经历',
+                    books: '书架', notes: '学习笔记', photos: '照片', interests: '兴趣爱好',
+                    life: '生活点滴', posts: '动态', contacts: '联系方式', data: '数据管理'
+                };
+
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const section = item.dataset.section;
+                        navItems.forEach(n => n.classList.remove('active'));
+                        item.classList.add('active');
+                        sections.forEach(s => s.classList.remove('active'));
+                        document.getElementById('section-' + section).classList.add('active');
+                        titleEl.textContent = titles[section] || section;
+                    });
+                });
+            },
+
+            loadAllData() {
+                const profile = DataStore.get('profile') || {};
+                const profileForm = document.getElementById('form-profile');
+                profileForm.name.value = profile.name || '';
+                profileForm.avatar.value = profile.avatar || '';
+                profileForm.tagline.value = profile.tagline || '';
+
+                const contacts = DataStore.get('contacts') || {};
+                const contactsForm = document.getElementById('form-contacts');
+                contactsForm.email.value = contacts.email || '';
+                contactsForm.github.value = contacts.github || '';
+
+                this.renderList('maxims', DataStore.get('maxims') || []);
+                this.renderList('skills', DataStore.get('skills') || []);
+                this.renderList('works', DataStore.get('works') || []);
+                this.renderList('books', DataStore.get('books') || []);
+                this.renderList('notes', DataStore.get('notes') || []);
+                this.renderList('photos', DataStore.get('photos') || []);
+                this.renderList('life', DataStore.get('lifeItems') || []);
+                this.renderList('posts', DataStore.get('posts') || []);
+                this.renderInterests();
+            },
+
+            renderList(type, items) {
+                const container = document.getElementById('list-' + type);
+                if (!container) return;
+
+                if (!items || items.length === 0) {
+                    container.innerHTML = '<div class="empty-list">暂无内容</div>';
+                    return;
+                }
+
+                const templates = {
+                    maxims: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.text + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'maxims\',' + i + ')">删除</button></div></div><div class="item-card-meta">—— ' + item.author + '</div></div>',
+                    skills: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.name + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'skills\',' + i + ')">删除</button></div></div><div class="item-card-meta">熟练度: ' + item.level + '%</div></div>',
+                    works: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.title + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'works\',' + i + ')">删除</button></div></div><div class="item-card-body">' + item.company + ' · ' + item.period + '</div><div class="item-card-meta">' + item.description + '</div></div>',
+                    books: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.title + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'books\',' + i + ')">删除</button></div></div><div class="item-card-body">' + item.author + '</div><div class="item-card-meta">' + (item.status === 'reading' ? '在读' : item.status === 'finished' ? '已读' : '想读') + '</div></div>',
+                    notes: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.title + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'notes\',' + i + ')">删除</button></div></div><div class="item-card-body">' + item.excerpt + '</div></div>',
+                    photos: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.caption + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'photos\',' + i + ')">删除</button></div></div><div class="item-card-body"><img src="' + item.url + '" style="max-width:200px;border-radius:4px;"></div></div>',
+                    life: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.title + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'lifeItems\',' + i + ')">删除</button></div></div><div class="item-card-body">' + item.date + ' · ' + item.excerpt + '</div></div>',
+                    posts: (item, i) => '<div class="item-card"><div class="item-card-header"><div class="item-card-title">' + item.title + '</div><div class="item-card-actions"><button class="delete" onclick="Admin.deleteItem(\'posts\',' + i + ')">删除</button></div></div><div class="item-card-body">' + item.date + '</div><div class="item-card-meta">' + (item.content || '').substring(0, 100) + '...</div></div>'
+                };
+
+                container.innerHTML = items.map((item, i) => templates[type](item, i)).join('');
+            },
+
+            renderInterests() {
+                const container = document.getElementById('list-interests');
+                const interests = DataStore.get('interests') || [];
+                if (interests.length === 0) {
+                    container.innerHTML = '<div class="empty-list">暂无兴趣爱好</div>';
+                    return;
+                }
+                container.innerHTML = interests.map((item, i) => '<span class="tag-item">' + item + '<span class="tag-remove" onclick="Admin.deleteInterest(' + i + ')">×</span></span>').join('');
+            },
+
+            deleteItem(listName, index) {
+                const list = DataStore.get(listName);
+                if (list && list.length > index) {
+                    list.splice(index, 1);
+                    DataStore.set(listName, list);
+                    this.loadAllData();
+                    this.showMessage('删除成功', 'success');
+                }
+            },
+
+            deleteInterest(index) {
+                const interests = DataStore.get('interests');
+                if (interests && interests.length > index) {
+                    interests.splice(index, 1);
+                    DataStore.set('interests', interests);
+                    this.renderInterests();
+                    this.showMessage('删除成功', 'success');
+                }
+            },
+
+            setupForms() {
+                document.getElementById('form-profile').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    DataStore.set('profile', { name: form.name.value, avatar: form.avatar.value, tagline: form.tagline.value });
+                    this.showMessage('保存成功', 'success');
+                });
+
+                document.getElementById('form-contacts').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    DataStore.set('contacts', { email: form.email.value, github: form.github.value });
+                    this.showMessage('保存成功', 'success');
+                });
+
+                document.getElementById('form-maxim').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const maxims = DataStore.get('maxims') || [];
+                    maxims.push({ text: form.text.value, author: form.author.value });
+                    DataStore.set('maxims', maxims);
+                    this.renderList('maxims', maxims);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-skill').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const skills = DataStore.get('skills') || [];
+                    skills.push({ name: form.name.value, level: parseInt(form.level.value) });
+                    DataStore.set('skills', skills);
+                    this.renderList('skills', skills);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-work').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const works = DataStore.get('works') || [];
+                    works.push({ id: 'w' + Date.now(), title: form.title.value, company: form.company.value, period: form.period.value, description: form.description.value });
+                    DataStore.set('works', works);
+                    this.renderList('works', works);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-book').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const books = DataStore.get('books') || [];
+                    books.push({ id: 'b' + Date.now(), title: form.title.value, author: form.author.value, status: form.status.value });
+                    DataStore.set('books', books);
+                    this.renderList('books', books);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-note').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const notes = DataStore.get('notes') || [];
+                    notes.push({ id: 'n' + Date.now(), title: form.title.value, excerpt: form.excerpt.value });
+                    DataStore.set('notes', notes);
+                    this.renderList('notes', notes);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-photo').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const photos = DataStore.get('photos') || [];
+                    photos.push({ id: 'p' + Date.now(), url: form.url.value, caption: form.caption.value });
+                    DataStore.set('photos', photos);
+                    this.renderList('photos', photos);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-interest').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const interests = DataStore.get('interests') || [];
+                    interests.push(form.interest.value);
+                    DataStore.set('interests', interests);
+                    this.renderInterests();
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-life').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const lifeItems = DataStore.get('lifeItems') || [];
+                    lifeItems.push({ id: 'l' + Date.now(), title: form.title.value, date: form.date.value, image: form.image.value, excerpt: form.excerpt.value });
+                    DataStore.set('lifeItems', lifeItems);
+                    this.renderList('life', lifeItems);
+                    form.reset();
+                    this.showMessage('添加成功', 'success');
+                });
+
+                document.getElementById('form-post').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const posts = DataStore.get('posts') || [];
+                    const tags = form.tags.value.split(',').map(t => t.trim()).filter(t => t);
+                    posts.push({ id: 'ps' + Date.now(), title: form.title.value, date: form.date.value, content: form.content.value, tags: tags });
+                    DataStore.set('posts', posts);
+                    this.renderList('posts', posts);
+                    form.reset();
+                    this.showMessage('发布成功', 'success');
+                });
+            },
+
+            showMessage(text, type) {
+                const msg = document.getElementById('message');
+                msg.textContent = text;
+                msg.className = 'message ' + type;
+                setTimeout(() => { msg.className = 'message'; }, 3000);
+            }
+        };
+
+        function exportData() {
+            DataStore.export();
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (DataStore.import(e.target.result)) {
+                    Admin.loadAllData();
+                    Admin.showMessage('导入成功', 'success');
+                } else {
+                    Admin.showMessage('导入失败，请检查文件格式', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetData() {
+            if (confirm('确定要重置所有数据吗？此操作不可恢复！')) {
+                DataStore.reset();
+                Admin.loadAllData();
+                Admin.showMessage('已重置为默认数据', 'success');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => Admin.init());
+    </script>
+</body>
+</html>
